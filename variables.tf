@@ -11,7 +11,6 @@ variable "create_vpc" {
 variable "name" {
   description = "Name to be used on all the resources as identifier"
   type        = string
-  default     = ""
 }
 
 variable "cidr" {
@@ -35,7 +34,7 @@ variable "instance_tenancy" {
 variable "azs" {
   description = "A list of availability zones names or ids in the region"
   type        = list(string)
-  default     = []
+  default     = ["eu-central-1a","eu-central-1b"]
 }
 
 variable "enable_dns_hostnames" {
@@ -169,7 +168,7 @@ variable "dhcp_options_tags" {
 variable "public_subnets" {
   description = "A list of public subnets inside the VPC"
   type        = list(string)
-  default     = []
+  default     = ["10.0.1.0/24","10.0.2.0/24"]
 }
 
 variable "public_subnet_assign_ipv6_address_on_creation" {
@@ -303,7 +302,7 @@ variable "public_acl_tags" {
 variable "private_subnets" {
   description = "A list of private subnets inside the VPC"
   type        = list(string)
-  default     = []
+  default     = ["10.0.110.0/24","10.0.120.0/24"]
 }
 
 variable "private_subnet_assign_ipv6_address_on_creation" {
