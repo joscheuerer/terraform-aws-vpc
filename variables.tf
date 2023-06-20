@@ -13,11 +13,6 @@ variable "cidr" {
   type        = string
   default     = "10.0.0.0/16"
 }
-variable "region" {
-  description = "(Optional) Define the region where to deploy the VPC. Dependency to azs variable."
-  type        = string
-  default     = "eu-central-1"
-}
 
 variable "azs" {
   description = "A list of availability zones names or ids in the region. Depending on region"
