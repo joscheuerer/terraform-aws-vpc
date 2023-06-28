@@ -59,19 +59,19 @@ variable "enable_network_address_usage_metrics" {
 variable "use_ipam_pool" {
   description = "Determines whether IPAM pool is used for CIDR allocation"
   type        = bool
-  default     = true #change
+  default     = false
 }
 
 variable "ipv4_ipam_pool_id" {
   description = "(Optional) The ID of an IPv4 IPAM pool you want to use for allocating this VPC's CIDR"
   type        = string
-  default     = "ipam-pool-05af38d451fd4e5ba" #change
+  default     = "" 
 }
 
 variable "ipv4_netmask_length" {
   description = "(Optional) The netmask length of the IPv4 CIDR you want to allocate to this VPC. Requires specifying a ipv4_ipam_pool_id"
   type        = number
-  default     = 24 #change again
+  default     = null
 }
 
 variable "enable_ipv6" {
@@ -174,12 +174,12 @@ variable "public_subnets" {
 variable "public_subnet_netmask_ipam" {
   description = "Netmask for the public subnets from IPAM"
   type        = number
-  default = 27 #change
+  default = 28 
 }
 variable "public_subnet_amount_ipam" {
   description = "Amount of public subnets from IPAM"
   type        = number
-  default = 3 #change
+  default = 1
 }
 
 variable "public_subnet_assign_ipv6_address_on_creation" {
@@ -318,12 +318,12 @@ variable "private_subnets" {
 variable "private_subnet_netmask_ipam" {
   description = "Netmask for the private subnets from IPAM"
   type        = number
-  default = 27 #change
+  default = 28
 }
 variable "private_subnet_amount_ipam" {
   description = "Amount of private subnets from IPAM"
   type        = number
-  default = 3 #change
+  default = 1
 }
 
 variable "private_subnet_assign_ipv6_address_on_creation" {
