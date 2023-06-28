@@ -11,6 +11,7 @@ variable "name" {
 variable "cidr" {
   description = "(Optional) The IPv4 CIDR block for the VPC. CIDR can be explicitly set or it can be derived from IPAM using `ipv4_netmask_length` & `ipv4_ipam_pool_id`"
   type        = string
+  default = ""
 }
 
 variable "azs" {
@@ -58,19 +59,19 @@ variable "enable_network_address_usage_metrics" {
 variable "use_ipam_pool" {
   description = "Determines whether IPAM pool is used for CIDR allocation"
   type        = bool
-  default     = false
+  default     = true #change
 }
 
 variable "ipv4_ipam_pool_id" {
   description = "(Optional) The ID of an IPv4 IPAM pool you want to use for allocating this VPC's CIDR"
   type        = string
-  default     = null
+  default     = "ipam-pool-05af38d451fd4e5ba" #change
 }
 
 variable "ipv4_netmask_length" {
   description = "(Optional) The netmask length of the IPv4 CIDR you want to allocate to this VPC. Requires specifying a ipv4_ipam_pool_id"
   type        = number
-  default     = null
+  default     = 24 #change again
 }
 
 variable "enable_ipv6" {
@@ -168,6 +169,17 @@ variable "dhcp_options_tags" {
 variable "public_subnets" {
   description = "A list of public subnets inside the VPC"
   type        = list(string)
+  default = [""]
+}
+variable "public_subnet_netmask_ipam" {
+  description = "Netmask for the public subnets from IPAM"
+  type        = number
+  default = 27 #change
+}
+variable "public_subnet_amount_ipam" {
+  description = "Amount of public subnets from IPAM"
+  type        = number
+  default = 3 #change
 }
 
 variable "public_subnet_assign_ipv6_address_on_creation" {
@@ -301,6 +313,17 @@ variable "public_acl_tags" {
 variable "private_subnets" {
   description = "A list of private subnets inside the VPC"
   type        = list(string)
+  default = [""]
+}
+variable "private_subnet_netmask_ipam" {
+  description = "Netmask for the private subnets from IPAM"
+  type        = number
+  default = 27 #change
+}
+variable "private_subnet_amount_ipam" {
+  description = "Amount of private subnets from IPAM"
+  type        = number
+  default = 3 #change
 }
 
 variable "private_subnet_assign_ipv6_address_on_creation" {
@@ -1358,7 +1381,7 @@ variable "default_security_group_tags" {
 variable "manage_default_network_acl" {
   description = "Should be true to adopt and manage Default Network ACL"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "default_network_acl_name" {

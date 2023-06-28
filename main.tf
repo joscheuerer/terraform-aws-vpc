@@ -1,11 +1,14 @@
 locals {
-  len_public_subnets      = max(length(var.public_subnets), length(var.public_subnet_ipv6_prefixes))
-  len_private_subnets     = max(length(var.private_subnets), length(var.private_subnet_ipv6_prefixes))
+  len_public_subnets      = max(length(var.public_subnets), length(var.public_subnet_ipv6_prefixes), var.public_subnet_amount_ipam)
+  len_private_subnets     = max(length(var.private_subnets), length(var.private_subnet_ipv6_prefixes), var.private_subnet_amount_ipam)
   len_database_subnets    = max(length(var.database_subnets), length(var.database_subnet_ipv6_prefixes))
   len_elasticache_subnets = max(length(var.elasticache_subnets), length(var.elasticache_subnet_ipv6_prefixes))
   len_redshift_subnets    = max(length(var.redshift_subnets), length(var.redshift_subnet_ipv6_prefixes))
   len_intra_subnets       = max(length(var.intra_subnets), length(var.intra_subnet_ipv6_prefixes))
   len_outpost_subnets     = max(length(var.outpost_subnets), length(var.outpost_subnet_ipv6_prefixes))
+
+  #devide the range in public & private range depending on the demand
+  preview_partition = var.use_ipam_pool ? cidrsubnets(aws_vpc_ipam_preview_next_cidr.this.cidr, (var.public_subnet_netmask_ipam - ceil(log(var.public_subnet_amount_ipam,2))) - var.ipv4_netmask_length, (var.private_subnet_netmask_ipam - ceil(log(var.private_subnet_amount_ipam,2)))-var.ipv4_netmask_length) : null 
 
   max_subnet_length = max(
     local.len_private_subnets,
@@ -93,7 +96,7 @@ resource "aws_vpc_dhcp_options_association" "this" {
 
 locals {
   create_public_subnets = local.create_vpc && local.len_public_subnets > 0
-}
+ }
 
 resource "aws_subnet" "public" {
   count = local.create_public_subnets && (!var.one_nat_gateway_per_az || local.len_public_subnets >= length(var.azs)) ? local.len_public_subnets : 0
@@ -101,7 +104,7 @@ resource "aws_subnet" "public" {
   assign_ipv6_address_on_creation                = var.enable_ipv6 && var.public_subnet_ipv6_native ? true : var.public_subnet_assign_ipv6_address_on_creation
   availability_zone                              = length(regexall("^[a-z]{2}-", element(var.azs, count.index))) > 0 ? element(var.azs, count.index) : null
   availability_zone_id                           = length(regexall("^[a-z]{2}-", element(var.azs, count.index))) == 0 ? element(var.azs, count.index) : null
-  cidr_block                                     = var.public_subnet_ipv6_native ? null : element(concat(var.public_subnets, [""]), count.index)
+  cidr_block                                     = var.use_ipam_pool ? cidrsubnet(local.preview_partition[0],(ceil(log(var.public_subnet_amount_ipam,2))),count.index) : element(concat(var.public_subnets, [""]), count.index)
   enable_dns64                                   = var.enable_ipv6 && var.public_subnet_enable_dns64
   enable_resource_name_dns_aaaa_record_on_launch = var.enable_ipv6 && var.public_subnet_enable_resource_name_dns_aaaa_record_on_launch
   enable_resource_name_dns_a_record_on_launch    = !var.public_subnet_ipv6_native && var.public_subnet_enable_resource_name_dns_a_record_on_launch
@@ -228,7 +231,7 @@ resource "aws_subnet" "private" {
   assign_ipv6_address_on_creation                = var.enable_ipv6 && var.private_subnet_ipv6_native ? true : var.private_subnet_assign_ipv6_address_on_creation
   availability_zone                              = length(regexall("^[a-z]{2}-", element(var.azs, count.index))) > 0 ? element(var.azs, count.index) : null
   availability_zone_id                           = length(regexall("^[a-z]{2}-", element(var.azs, count.index))) == 0 ? element(var.azs, count.index) : null
-  cidr_block                                     = var.private_subnet_ipv6_native ? null : element(concat(var.private_subnets, [""]), count.index)
+  cidr_block                                     = var.use_ipam_pool ? cidrsubnet(local.preview_partition[1],(ceil(log(var.public_subnet_amount_ipam,2))),count.index) : element(concat(var.private_subnets, [""]), count.index)
   enable_dns64                                   = var.enable_ipv6 && var.private_subnet_enable_dns64
   enable_resource_name_dns_aaaa_record_on_launch = var.enable_ipv6 && var.private_subnet_enable_resource_name_dns_aaaa_record_on_launch
   enable_resource_name_dns_a_record_on_launch    = !var.private_subnet_ipv6_native && var.private_subnet_enable_resource_name_dns_a_record_on_launch
@@ -1341,4 +1344,15 @@ resource "aws_default_route_table" "default" {
     var.tags,
     var.default_route_table_tags,
   )
+}
+
+
+################################################################################
+# Ipam resources
+################################################################################
+
+resource "aws_vpc_ipam_preview_next_cidr" "this" {
+  ipam_pool_id = var.ipv4_ipam_pool_id
+  netmask_length = var.ipv4_netmask_length
+
 }
