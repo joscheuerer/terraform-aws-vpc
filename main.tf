@@ -8,7 +8,7 @@ locals {
   len_outpost_subnets     = max(length(var.outpost_subnets), length(var.outpost_subnet_ipv6_prefixes))
 
   #devide the range in public & private range depending on the demand
-  preview_partition = var.use_ipam_pool ? cidrsubnets(aws_vpc_ipam_preview_next_cidr.this.cidr, (var.public_subnet_netmask_ipam - ceil(log(var.public_subnet_amount_ipam,2))) - var.ipv4_netmask_length, (var.private_subnet_netmask_ipam - ceil(log(var.private_subnet_amount_ipam,2)))-var.ipv4_netmask_length) : null 
+  preview_partition = var.use_ipam_pool ? cidrsubnets(aws_vpc_ipam_preview_next_cidr.this[0].cidr, (var.public_subnet_netmask_ipam - ceil(log(var.public_subnet_amount_ipam,2))) - var.ipv4_netmask_length, (var.private_subnet_netmask_ipam - ceil(log(var.private_subnet_amount_ipam,2)))-var.ipv4_netmask_length) : null 
 
   max_subnet_length = max(
     local.len_private_subnets,
@@ -1352,6 +1352,7 @@ resource "aws_default_route_table" "default" {
 ################################################################################
 
 resource "aws_vpc_ipam_preview_next_cidr" "this" {
+  count = var.use_ipam_pool ? 1 : 0
   ipam_pool_id = var.ipv4_ipam_pool_id
   netmask_length = var.ipv4_netmask_length
 
