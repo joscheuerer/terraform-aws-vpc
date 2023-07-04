@@ -11,7 +11,7 @@ variable "name" {
 variable "cidr" {
   description = "(Optional) The IPv4 CIDR block for the VPC. CIDR can be explicitly set or it can be derived from IPAM using `ipv4_netmask_length` & `ipv4_ipam_pool_id`"
   type        = string
-  default = ""
+  default     = "10.0.0.0/16"
 }
 
 variable "azs" {
@@ -169,7 +169,7 @@ variable "dhcp_options_tags" {
 variable "public_subnets" {
   description = "A list of public subnets inside the VPC"
   type        = list(string)
-  default = [""]
+  default = ["10.0.0.0/24","10.0.1.0/24"]
 }
 variable "public_subnet_netmask_ipam" {
   description = "Netmask for the public subnets from IPAM"
@@ -313,7 +313,7 @@ variable "public_acl_tags" {
 variable "private_subnets" {
   description = "A list of private subnets inside the VPC"
   type        = list(string)
-  default = [""]
+  default = ["10.0.100.0/24","10.0.101.0/24"]
 }
 variable "private_subnet_netmask_ipam" {
   description = "Netmask for the private subnets from IPAM"
