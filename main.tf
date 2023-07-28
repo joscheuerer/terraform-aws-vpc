@@ -104,7 +104,7 @@ resource "aws_subnet" "public" {
   assign_ipv6_address_on_creation                = var.enable_ipv6 && var.public_subnet_ipv6_native ? true : var.public_subnet_assign_ipv6_address_on_creation
   availability_zone                              = length(regexall("^[a-z]{2}-", element(var.azs, count.index))) > 0 ? element(var.azs, count.index) : null
   availability_zone_id                           = length(regexall("^[a-z]{2}-", element(var.azs, count.index))) == 0 ? element(var.azs, count.index) : null
-  cidr_block                                     = var.use_ipam_pool ? cidrsubnet(local.preview_partition[0],max(1,(ceil(log(var.public_subnet_amount_ipam,2)))),count.index) : element(concat(var.public_subnets, [""]), count.index)
+  cidr_block                                     = var.use_ipam_pool ? cidrsubnet(local.preview_partition[0],ceil(log(var.public_subnet_amount_ipam,2)),(count.index)-1) : element(concat(var.public_subnets, [""]), count.index)
   enable_dns64                                   = var.enable_ipv6 && var.public_subnet_enable_dns64
   enable_resource_name_dns_aaaa_record_on_launch = var.enable_ipv6 && var.public_subnet_enable_resource_name_dns_aaaa_record_on_launch
   enable_resource_name_dns_a_record_on_launch    = !var.public_subnet_ipv6_native && var.public_subnet_enable_resource_name_dns_a_record_on_launch
@@ -231,7 +231,7 @@ resource "aws_subnet" "private" {
   assign_ipv6_address_on_creation                = var.enable_ipv6 && var.private_subnet_ipv6_native ? true : var.private_subnet_assign_ipv6_address_on_creation
   availability_zone                              = length(regexall("^[a-z]{2}-", element(var.azs, count.index))) > 0 ? element(var.azs, count.index) : null
   availability_zone_id                           = length(regexall("^[a-z]{2}-", element(var.azs, count.index))) == 0 ? element(var.azs, count.index) : null
-  cidr_block                                     = var.use_ipam_pool ? cidrsubnet(local.preview_partition[1],max(1,(ceil(log(var.private_subnet_amount_ipam,2)))),count.index) : element(concat(var.private_subnets, [""]), count.index)
+  cidr_block                                     = var.use_ipam_pool ? cidrsubnet(local.preview_partition[1],(ceil(log(var.private_subnet_amount_ipam,2))),(count.index)-1) : element(concat(var.private_subnets, [""]), count.index)
   enable_dns64                                   = var.enable_ipv6 && var.private_subnet_enable_dns64
   enable_resource_name_dns_aaaa_record_on_launch = var.enable_ipv6 && var.private_subnet_enable_resource_name_dns_aaaa_record_on_launch
   enable_resource_name_dns_a_record_on_launch    = !var.private_subnet_ipv6_native && var.private_subnet_enable_resource_name_dns_a_record_on_launch
